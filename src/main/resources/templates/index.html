@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Chat - Spring Security, WebSockets, Postgres</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body style="background-color: gainsboro">
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+  enabled. Please enable
+  Javascript and reload this page!</h2></noscript>
+<div class="container text-center">
+    <h1>Welcome to Chat using Spring Security, WebSockets and Postgres </h1>
+    <h3><a th:href="@{/register}">Register</a></h3>
+    <h3><a th:href="@{/login}">Login</a></h3>
+    <h3><a th:href="@{/add_friend}">Find new people to type with</a></h3>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body style="background-color: gainsboro ;">
+<div name="container" style="height: 100vh;">
+<div style="width: 100%; height: 40px;">
+    <div style="float: right;padding-right: 20px; padding-top: 20px;">
+        Logged as:&nbsp
+        <b th:text="${username}" th:id="from"></b>
+    </div>
+</div>
+<div style="width: 100%; height: 40px;">
+    <div style="padding-left: 20px; padding-top: 20px;">
+        Chat with:&nbsp
+        <b th:text="${chatWith}" th:id="username"></b>
+    </div>
+</div>
+    <div id="scroll" style="height: calc(100% - 220px); margin-top: 40px; margin-right: 40px; margin-left: 40px;overflow-y: scroll;">
+<table th:id="messageTable">
+    <div th:if="${not #lists.isEmpty(conversation)}">
+<tr th:each = "message: ${conversation}">
+    <td th:text="${message}"></td>
+</tr>
+    </div>
+</table>
+    </div>
+<div style="width: 95%;margin-left: auto; margin-right: auto;">
+<form class="form-inline" th:action="@{/conversation/{id}(id=${chatWith})}" method="post">
+    <div style="width: calc(100% - 75px); float: left;">
+        <input type="text" th:value="${newMessage}"  name="newMessage" th:id="newMessage" class="form-control" placeholder="Your message">
+    </div>
+    <div style="width: 75px; float: right;">
+        <button id="send" class="btn btn-primary" type="submit" style="width: 100%;">Send</button>
+    </div>
+</form>
+</div>
+</div>
+</body>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    let cname = 'webSocketKey';
+    let cvalue = /*[[${webSocketKey}]]*/ 'default';
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    /*]]>*/
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
+<script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
+<script type="text/javascript" th:src="@{/app.js}"></script>
+<script>
+    let scroll_to_bottom =  document.getElementById("scroll");
+    scroll_to_bottom.scrollTop = scroll_to_bottom.scrollHeight;
+</script>
+</html>
