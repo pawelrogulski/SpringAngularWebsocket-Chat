@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.*;
 
 @Controller
@@ -27,22 +28,13 @@ public class AppController {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     @MessageMapping("/hello")
-    public void send(SimpMessageHeaderAccessor sha, @Payload String username) {
-        String sendFrom ="";
-        String message = username;
-        int space = message.indexOf(" ");
-        double key = Double.parseDouble(message.substring(0,space));
-        for (Map.Entry<Integer, Double> entry : webSocketKeys.entrySet()) {
-            if (entry.getValue().equals(key)) {
-                sendFrom = appService.getUserById(entry.getKey()).getUsername();
-            }
-        }
-        message = message.substring(space+1,message.length());
-        space = message.indexOf(" ");
-        String sendTo = message.substring(0,space);
-        message = message.substring(space+1,message.length());
+    public void send(SimpMessageHeaderAccessor sha, @Payload String recipientAndMessage, Principal principal) {
+        String sendFrom = principal.getName();
+        int space = recipientAndMessage.indexOf(" ");
+        String sendTo = recipientAndMessage.substring(0,space);
+        String message = recipientAndMessage.substring(space+1,recipientAndMessage.length());
         int conversationId = appService.findConversation(appService.getUserByUsername(sendFrom).getId(),appService.getUserByUsername(sendTo).getId());
-        appService.addMessage(message,appService.getUserByUsername(sendFrom).getId(),conversationId);
+        appService.addMessage(recipientAndMessage,appService.getUserByUsername(sendFrom).getId(),conversationId);
         simpMessagingTemplate.convertAndSendToUser(sendTo, "/queue/messages", sendFrom+": "+message);
     }
 
@@ -99,24 +91,7 @@ public class AppController {
         model.addAttribute("newMessage", message);
         model.addAttribute("username",username);
 
-        Random random = new Random();
-        //double generatedKey = Math.round(Math.random()*Math.pow(10,20));
-        double generatedKey = random.nextDouble(Math.pow(10,20));
-        webSocketKeys.put(appService.getUserByUsername(username).getId() ,generatedKey);
-        model.addAttribute("webSocketKey",generatedKey);
-        System.out.println(generatedKey);
         return "/conversation";
-    }
-
-    @PostMapping("/conversation/{id}")//kiedyś wysyłało wiadomości, ale teraz jego role przejęła funkcja "send" wraz z wejściem websocketów
-    public String sendMessage(@PathVariable String id, @RequestParam String newMessage){
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String sendFrom = "";
-        if (principal instanceof MyUserDetails) {sendFrom = ((MyUserDetails)principal).getUsername();}
-        else {sendFrom = principal.toString();}
-        int conversationId = appService.findConversation(appService.getUserByUsername(sendFrom).getId(),appService.getUserByUsername(id).getId());
-        appService.addMessage(newMessage,appService.getUserByUsername(sendFrom).getId(),conversationId);
-        return "redirect:/conversation/"+appService.getUserByUsername(id).getId();
     }
 }
 
