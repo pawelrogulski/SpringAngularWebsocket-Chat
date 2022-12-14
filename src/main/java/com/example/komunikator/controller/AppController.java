@@ -5,6 +5,7 @@ import com.example.komunikator.domain.User;
 import com.example.komunikator.service.AppService;
 import com.example.komunikator.service.data.UserRegister;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +26,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AppController {
     private final AppService appService;
-    private Map<Integer,Double> webSocketKeys = new HashMap<>();
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     @MessageMapping("/hello")
@@ -90,7 +92,6 @@ public class AppController {
         model.addAttribute("chatWith", appService.getUserById(idInt).getUsername());
         model.addAttribute("newMessage", message);
         model.addAttribute("username",username);
-
         return "/conversation";
     }
 }

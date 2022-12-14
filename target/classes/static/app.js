@@ -1,5 +1,6 @@
 let stompClient = null;
 let username = document.getElementById('username').innerHTML;
+document.getElementById('from').innerHTML = "b";
 let from = document.getElementById('from').innerHTML;
 connect();
 function connect() {

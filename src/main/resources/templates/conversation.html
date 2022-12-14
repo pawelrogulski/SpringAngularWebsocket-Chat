@@ -40,16 +40,6 @@
 </div>
 </div>
 </body>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    const d = new Date();
-    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    let expires = "expires="+d.toUTCString();
-    let cname = 'webSocketKey';
-    let cvalue = /*[[${webSocketKey}]]*/ 'default';
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    /*]]>*/
-</script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
 <script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
