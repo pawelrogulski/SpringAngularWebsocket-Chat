@@ -1,18 +1,17 @@
 let stompClient = null;
 let username = document.getElementById('username').innerHTML;
-document.getElementById('from').innerHTML = "b";
 let from = document.getElementById('from').innerHTML;
 connect();
 function connect() {
     let from = document.getElementById('from').innerHTML;
     let socket = new SockJS('/hello');
     stompClient = Stomp.over(socket);
-    stompClient.connect({ username: from, }, function() {
+    stompClient.connect({}, function() {
         console.log('Web Socket is connected');
         stompClient.subscribe('/users/queue/messages', function(message) {
             messages = document.getElementById("messageTable").innerHTML;
             let msg = message.body;
-            let newMessageFrom = msg.substring(0,username.length);
+            let newMessageFrom = msg.substring(0,from.length);
             if(username==newMessageFrom){
                 document.getElementById("messageTable").innerHTML=messages+"<tr><td>"+message.body+"</td></tr>";
                 let scroll_to_bottom =  document.getElementById("scroll");
