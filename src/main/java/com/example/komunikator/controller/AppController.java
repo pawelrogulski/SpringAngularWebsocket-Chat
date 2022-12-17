@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,14 +30,14 @@ public class AppController {
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-    @MessageMapping("/hello")
+    @MessageMapping("/chat")
     public void send(SimpMessageHeaderAccessor sha, @Payload String recipientAndMessage, Principal principal) {
         String sendFrom = principal.getName();
         int space = recipientAndMessage.indexOf(" ");
         String sendTo = recipientAndMessage.substring(0,space);
         String message = recipientAndMessage.substring(space+1,recipientAndMessage.length());
         int conversationId = appService.findConversation(appService.getUserByUsername(sendFrom).getId(),appService.getUserByUsername(sendTo).getId());
-        appService.addMessage(recipientAndMessage,appService.getUserByUsername(sendFrom).getId(),conversationId);
+        appService.addMessage(message,appService.getUserByUsername(sendFrom).getId(),conversationId);
         simpMessagingTemplate.convertAndSendToUser(sendTo, "/queue/messages", sendFrom+": "+message);
     }
 
@@ -59,16 +60,13 @@ public class AppController {
     @GetMapping("/add_friend")
     public String usersList(Model model){
         List<User> users = appService.getAllUsers();
-        List<User> usersWithoutMe = new ArrayList<>();
-        String username = "";
+        String username;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
-        else {username = principal.toString();}
-        for(User user : users){
-            if(!user.getUsername().equals(username)){
-                usersWithoutMe.add(user);
-            }
-        }
+        else {username = "";}
+        List<User> usersWithoutMe = users.stream()
+                .filter(user -> !user.getUsername().equals(username))
+                .collect(Collectors.toList());
         model.addAttribute("users", usersWithoutMe);
         return "add_friend";
     }
@@ -78,21 +76,12 @@ public class AppController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = "";
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
-        else {username = principal.toString();}
-        int idInt =0;
-        if(id.matches("[0-9]+")){
-            idInt = Integer.parseInt(id);
-        }
-        else {
-            idInt = appService.findConversation(appService.getUserByUsername(username).getId(),appService.getUserByUsername(id).getId());
-        }
-        int conversationId = appService.startConversaton(appService.getUserByUsername(username).getId(),idInt);
+        int conversationId = appService.startConversaton(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
         String message = "";
         model.addAttribute("conversation", appService.sortMessages(appService.getConversationById(conversationId)));
-        model.addAttribute("chatWith", appService.getUserById(idInt).getUsername());
+        model.addAttribute("recipient", appService.getUserById(Integer.parseInt(id)).getUsername());
         model.addAttribute("newMessage", message);
         model.addAttribute("username",username);
         return "/conversation";
     }
 }
-

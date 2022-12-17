@@ -11,12 +11,10 @@ import com.example.komunikator.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -28,7 +26,7 @@ public class AppService {
 
 
     public Role addRole(String role){
-        String[] possibleRoles = {"ROLE_ADMIN", "ROLE_USER"};
+        String[] possibleRoles = {"ROLE_USER"};
         if(!Arrays.asList(possibleRoles).contains(role)){
             throw new IllegalStateException("Niezaimplementowana rola");
         }
@@ -43,19 +41,21 @@ public class AppService {
     }
 
     public void addUser(String username, String password){
-        if(!(username.contains(" ") || password.contains(" ") || username.equals("") || password.equals(""))){
-            User user = new User();
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password));
-            Collection<Role> defaultRole = new ArrayList<>();
-            defaultRole.add(addRole("ROLE_USER"));
-            user.setRoles(defaultRole);
-            userRepository.save(user);
-        }
-        else{
-            System.out.println("Login lub hasło ze spacją lub puste");
-        }
+        if(username.contains(" ")){throw new IllegalStateException("Błędny login");}
+        if(password.contains(" ")){throw new IllegalStateException("Błędne hasło");}
+        if(username.equals("")){throw new IllegalStateException("Błędny login");}
+        if(password.equals("")){throw new IllegalStateException("Błędne hasło");}
+        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new ClientAlreadyExistsException("Login zajęty");}
+
+        User user = new User();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Collection<Role> defaultRole = new ArrayList<>();
+        defaultRole.add(addRole("ROLE_USER"));
+        user.setRoles(defaultRole);
+        userRepository.save(user);
+
     }
 
 
