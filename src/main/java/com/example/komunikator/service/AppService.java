@@ -26,7 +26,7 @@ public class AppService {
 
 
     public Role addRole(String role){
-        String[] possibleRoles = {"ROLE_USER"};
+        String[] possibleRoles = {"ROLE_USER"}; //lista wszystkich zaimplementowanych w aplikacji ról
         if(!Arrays.asList(possibleRoles).contains(role)){
             throw new IllegalStateException("Niezaimplementowana rola");
         }
@@ -52,7 +52,7 @@ public class AppService {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
         Collection<Role> defaultRole = new ArrayList<>();
-        defaultRole.add(addRole("ROLE_USER"));
+        defaultRole.add(addRole("ROLE_USER")); //domyślnie używkonik tworzony jest jedynie z rolą "user"
         user.setRoles(defaultRole);
         userRepository.save(user);
 
@@ -90,11 +90,11 @@ public class AppService {
         return findConversation(user1id, user2id);
     }
 
-    public List<Integer> findConversation(int userId){
+    public List<Integer> findConversation(int userId){ //zwraca listę id konwersacji danego używkonika
         List<Integer> conversations = new ArrayList<>();
-        for(Conversation conversation : conversationRepository.findAll()){
-            for(User user : conversation.getUsers()){
-                if(user.getId()==userId){
+        for(Conversation conversation : conversationRepository.findAll()){ //przeszukuje wszystkie konwersacje
+            for(User user : conversation.getUsers()){ //przeszukuje wszystkich użytkowników konwersacji
+                if(user.getId()==userId){ //jeśli id używkonika pokrywa się z szukanym id, zapisuje go do listy
                     conversations.add(conversation.getId());
                 }
             }
@@ -102,11 +102,11 @@ public class AppService {
         return conversations;
     }
 
-    public int findConversation(int user1id, int user2id){
+    public int findConversation(int user1id, int user2id){ //zwraca id konwersacji dwóch używkowników
         Boolean flag = true;
-        for(Conversation conversation : conversationRepository.findAll()){
+        for(Conversation conversation : conversationRepository.findAll()){ //przeszukuje wszystkie konwersacje
             for(User user : conversation.getUsers()){
-                if(!(user.getId()==user1id || user.getId()==user2id)){
+                if(!(user.getId()==user1id || user.getId()==user2id)){ //sprawdza czy id używkoników zgadzają się z szukanymi id
                     flag = false;
                 }
             }
@@ -122,10 +122,11 @@ public class AppService {
         return conversationRepository.findById(id).get();
     }
 
-    public List<String> sortMessages(Conversation conversation){
+    public List<String> sortMessagesByUsername(Conversation conversation){ // zwraca chronologicznie wiadomości z danej konwersacji
         List<String> messages = new ArrayList<>();
         if(conversation.getMessages()!=null){
             for(Message message : conversation.getMessages()){
+                //dodaje do wiadomości prefix z loginem używkonika który wysłał daną wiadomość
                 messages.add(getUserById(message.getFromId()).getUsername()+": "+message.getText());
             }
         }

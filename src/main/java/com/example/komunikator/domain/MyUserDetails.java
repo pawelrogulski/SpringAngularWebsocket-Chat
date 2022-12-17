@@ -13,14 +13,10 @@ public class MyUserDetails implements UserDetails {
     private int id;
     private String username;
     private String password;
-    private double WebSocketKey;
-    //private Collection<Conversation> conversations;
     private List<GrantedAuthority> authorities;
     public MyUserDetails(User user) {
         this.username=user.getUsername();
         this.password=user.getPassword();
-        this.WebSocketKey=user.getWebSocketKey();
-        //this.conversations=user.getConversations();
         List<String> auth = new ArrayList<>();
         for(Role role : user.getRoles()){
             auth.add(role.getName());

@@ -23,8 +23,6 @@ public class User {
     @Column(unique = true)
     private String username;
     private String password;
-    @Transient
-    private double WebSocketKey;
     @ManyToMany(mappedBy = "users")
     private Collection<Conversation> conversations;
     @ManyToMany(fetch = FetchType.EAGER)

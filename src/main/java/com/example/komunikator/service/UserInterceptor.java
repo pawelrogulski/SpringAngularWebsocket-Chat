@@ -18,11 +18,11 @@ public class UserInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         String username = "";
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            Object raw2 = message.getHeaders().get("simpUser");
+            Object raw2 = message.getHeaders().get("simpUser"); //pobiera nagłówek "simpUser" w którym zawarte są informacje potrzebne do autentykacji
             if(raw2 instanceof UsernamePasswordAuthenticationToken){
-                username = ((UsernamePasswordAuthenticationToken) message.getHeaders().get("simpUser")).getName();
+                username = ((UsernamePasswordAuthenticationToken) message.getHeaders().get("simpUser")).getName(); //pobieramy login użytkownika
             }
-            accessor.setUser(new MessageUser(username));
+            accessor.setUser(new MessageUser(username)); //dodajemy login do listy użytkowników mogących otrzymywać wiadomości
 
         }
         return message;
