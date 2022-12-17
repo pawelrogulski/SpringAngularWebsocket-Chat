@@ -41,11 +41,11 @@ public class AppService {
     }
 
     public void addUser(String username, String password){
-        if(username.contains(" ")){throw new IllegalStateException("Błędny login");}
-        if(password.contains(" ")){throw new IllegalStateException("Błędne hasło");}
-        if(username.equals("")){throw new IllegalStateException("Błędny login");}
-        if(password.equals("")){throw new IllegalStateException("Błędne hasło");}
-        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new ClientAlreadyExistsException("Login zajęty");}
+        if(username.contains(" ")){throw new IllegalStateException("Forbidden sign");}
+        if(password.contains(" ")){throw new IllegalStateException("Forbidden sign");}
+        if(username.equals("")){throw new IllegalStateException("Forbidden sign");}
+        if(password.equals("")){throw new IllegalStateException("Forbidden sign");}
+        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new ClientAlreadyExistsException("Login taken");}
 
         User user = new User();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

@@ -8,13 +8,21 @@
 <body style="background-color: gainsboro ;">
 <div name="container" style="height: 100vh;">
     <div style="width: 100%; height: 40px;">
-        <div style="float: right;padding-right: 20px; padding-top: 20px;">
-            Logged as:&nbsp
-            <b th:text="${username}" th:id="user"></b>
+        <div style="padding-right: 20px; padding-top: 20px; width: 100%; text-align: center; font-size: 25px;">
+            <div style="display: inline-block; padding-right: 33%;">
+                <a href="http://www.localhost:8080">Main page</a>
+            </div>
+            <div style="display: inline-block; padding-right: 33%;">
+                <a href="http://localhost:8080/add_friend">Find user</a>
+            </div>
+            <div style="display: inline-block; padding-right: 0%;">
+                Logged as:&nbsp
+                <b th:text="${username}" th:id="user"></b>
+            </div>
         </div>
     </div>
-    <div style="width: 100%; height: 40px;">
-        <div style="padding-left: 20px; padding-top: 20px;">
+    <div style="width: 100%; height: 40px; font-size: 25px;">
+        <div style="padding-left: 20px; padding-top: 50px;">
             Chat with:&nbsp
             <b th:text="${recipient}" th:id="recipient"></b>
         </div>

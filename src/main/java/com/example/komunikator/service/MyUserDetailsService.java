@@ -19,7 +19,7 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByUsername(userName);
 
-        user.orElseThrow(() -> new UsernameNotFoundException("Nie znaleziono używkonika o loginie: " + userName));
+        user.orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
 
         return user.map(MyUserDetails::new).get();
     }
