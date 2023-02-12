@@ -9,11 +9,11 @@ import com.example.komunikator.repository.MessageRepo;
 import com.example.komunikator.repository.RoleRepo;
 import com.example.komunikator.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.provider.ClientAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityExistsException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -45,7 +45,7 @@ public class AppService {
         if(password.contains(" ")){throw new IllegalStateException("Forbidden sign");}
         if(username.equals("")){throw new IllegalStateException("Forbidden sign");}
         if(password.equals("")){throw new IllegalStateException("Forbidden sign");}
-        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new ClientAlreadyExistsException("Login taken");}
+        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new EntityExistsException("Login in use");}
 
         User user = new User();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -77,7 +77,7 @@ public class AppService {
         return userRepository.findById(id).get();
     }
 
-    public int startConversaton(int user1id, int user2id){
+    public int startConversation(int user1id, int user2id){
         if(findConversation(user1id,user2id)==-1){
             Collection<User> users = new ArrayList<>();
             users.add(userRepository.findById(user1id).get());

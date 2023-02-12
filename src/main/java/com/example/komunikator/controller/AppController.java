@@ -5,7 +5,6 @@ import com.example.komunikator.domain.User;
 import com.example.komunikator.service.AppService;
 import com.example.komunikator.service.data.UserRegister;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,10 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,7 +73,7 @@ public class AppController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = "";
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
-        int conversationId = appService.startConversaton(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
+        int conversationId = appService.startConversation(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
         String message = "";
         model.addAttribute("conversation", appService.sortMessagesByUsername(appService.getConversationById(conversationId)));
         model.addAttribute("recipient", appService.getUserById(Integer.parseInt(id)).getUsername());
