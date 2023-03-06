@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.provider.ClientAlreadyExistsException
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
+import javax.transaction.Transactional;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -78,7 +79,11 @@ public class AppService {
     }
 
     public int startConversation(int user1id, int user2id){
-        if(findConversation(user1id,user2id)==-1){
+        if(user1id==user2id){
+            throw new IllegalArgumentException("Użytkownik nie może nawiązać konwersacji sam ze sobą");
+        }
+        int conversationId = findConversation(user1id, user2id);
+        if(conversationId==-1){ //jeśli użytkownicy nie mają między sobą istniejącej konwersacji metoda tworzy ją i zwraca jej id
             Collection<User> users = new ArrayList<>();
             users.add(userRepository.findById(user1id).get());
             users.add(userRepository.findById(user2id).get());
@@ -87,35 +92,18 @@ public class AppService {
             conversationRepository.save(conversation);
             return conversation.getId();
         }
-        return findConversation(user1id, user2id);
+        return conversationId; //jeśli konwersacja istnieje metoda zwraca jej id
     }
 
-    public List<Integer> findConversation(int userId){ //zwraca listę id konwersacji danego użytkownika
-        List<Integer> conversations = new ArrayList<>();
-        for(Conversation conversation : conversationRepository.findAll()){ //przeszukuje wszystkie konwersacje
-            for(User user : conversation.getUsers()){ //przeszukuje wszystkich użytkowników konwersacji
-                if(user.getId()==userId){ //jeśli id użytkownika pokrywa się z szukanym id, zapisuje go do listy
-                    conversations.add(conversation.getId());
-                }
-            }
-        }
-        return conversations;
-    }
-
+    @Transactional
     public int findConversation(int user1id, int user2id){ //zwraca id konwersacji dwóch użytkowników
-        Boolean flag = true;
-        for(Conversation conversation : conversationRepository.findAll()){ //przeszukuje wszystkie konwersacje
-            for(User user : conversation.getUsers()){
-                if(!(user.getId()==user1id || user.getId()==user2id)){ //sprawdza czy id użytkowników zgadzają się z szukanymi id
-                    flag = false;
-                }
-            }
-            if(flag){
-                return conversation.getId();
-            }
-            flag = true;
+        List<Conversation> conversations = conversationRepository.findConversationByUserId(new int[]{user1id, user2id});
+        if(conversations.isEmpty()){
+            return -1;
         }
-        return -1;
+        else{
+            return conversations.get(0).getId();
+        }
     }
 
     public Conversation getConversationById(int id){
