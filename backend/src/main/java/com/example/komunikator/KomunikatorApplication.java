@@ -12,9 +12,5 @@ public class KomunikatorApplication {
         SpringApplication.run(KomunikatorApplication.class, args);
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
 }
