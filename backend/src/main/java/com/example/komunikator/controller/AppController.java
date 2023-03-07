@@ -3,7 +3,7 @@ package com.example.komunikator.controller;
 import com.example.komunikator.domain.MyUserDetails;
 import com.example.komunikator.domain.User;
 import com.example.komunikator.service.AppService;
-import com.example.komunikator.service.data.UserRegister;
+import com.example.komunikator.service.data.IdUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,7 +11,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class AppController {
     private final AppService appService;
@@ -43,29 +42,23 @@ public class AppController {
     public String viewHomePage() {
         return "index";
     }
-
-    @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new UserRegister());
-        return "register";
-    }
-    @PostMapping("/process_register")
-    public String processRegister(UserRegister user) {
-        appService.addUser(user.getUsername(),user.getPassword());
-        return "redirect:/";
+    @GetMapping("/login")
+    public void login(){}
+    @PostMapping("/register")
+    public User processRegister(@RequestBody User user) {
+        return appService.addUser(user);
     }
     @GetMapping("/add_friend")
-    public String usersList(Model model){
+    public List<IdUsername> usersList(){
         List<User> users = appService.getAllUsers();
         String username;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
         else {username = "";}
-        List<User> usersWithoutMe = users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
+        return users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
                 .filter(user -> !user.getUsername().equals(username))
+                .map(user -> new IdUsername(user.getId(),user.getUsername()))
                 .collect(Collectors.toList());
-        model.addAttribute("users", usersWithoutMe);
-        return "add_friend";
     }
 
     @GetMapping("/conversation/{id}")//id to id użytkownika z którym prowadzimy konwersacje

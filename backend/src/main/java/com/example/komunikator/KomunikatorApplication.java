@@ -16,4 +16,5 @@ public class KomunikatorApplication {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

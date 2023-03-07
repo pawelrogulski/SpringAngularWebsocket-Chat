@@ -1,0 +1,16 @@
+<h2>Find user</h2>
+<table class = "table table-striped">
+  <thead>
+    <tr>
+      <th>Username</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor = "let user of users">
+      <td>{{user.username}}</td>
+      <td>
+        <button (click) = "startConversation(user.id)" class = "btn btn-info"> Start Conversation</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

@@ -10,7 +10,6 @@ import com.example.komunikator.repository.RoleRepo;
 import com.example.komunikator.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
@@ -41,22 +40,19 @@ public class AppService {
         return foundRole;
     }
 
-    public void addUser(String username, String password){
-        if(username.contains(" ")){throw new IllegalStateException("Forbidden sign");}
-        if(password.contains(" ")){throw new IllegalStateException("Forbidden sign");}
-        if(username.equals("")){throw new IllegalStateException("Forbidden sign");}
-        if(password.equals("")){throw new IllegalStateException("Forbidden sign");}
-        if(!userRepository.findByUsername(username).equals(Optional.empty())){throw new EntityExistsException("Login in use");}
+    public User addUser(User user){
+        if(user.getUsername().contains(" ")){throw new IllegalStateException("Forbidden sign");}
+        if(user.getPassword().contains(" ")){throw new IllegalStateException("Forbidden sign");}
+        if(user.getUsername().equals("")){throw new IllegalStateException("Forbidden sign");}
+        if(user.getPassword().equals("")){throw new IllegalStateException("Forbidden sign");}
+        if(!userRepository.findByUsername(user.getUsername()).equals(Optional.empty())){throw new EntityExistsException("Login in use");}
 
-        User user = new User();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Collection<Role> defaultRole = new ArrayList<>();
         defaultRole.add(addRole("ROLE_USER")); //domyślnie użytkownik tworzony jest jedynie z rolą "user"
         user.setRoles(defaultRole);
-        userRepository.save(user);
-
+        return userRepository.save(user);
     }
 
 
