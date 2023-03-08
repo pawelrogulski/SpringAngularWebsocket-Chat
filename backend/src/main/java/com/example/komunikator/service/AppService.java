@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -123,5 +124,16 @@ public class AppService {
         message.setFromId(fromId);
         message.setConversation(conversationRepository.findById(conversationId).get());
         messageRepository.save(message);
+    }
+
+    public String findRecipientUsername(int conversationId, String username){
+        Conversation conversation = conversationRepository.findById(conversationId).get();
+        return conversation
+                .getUsers()
+                .stream()
+                .filter(user -> !user.getUsername().equals(username))
+                .collect(Collectors.toList())
+                .get(0)
+                .getUsername();
     }
 }

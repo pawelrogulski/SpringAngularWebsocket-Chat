@@ -1,11 +1,15 @@
 package com.example.komunikator.controller;
 
+import com.example.komunikator.domain.Conversation;
 import com.example.komunikator.domain.MyUserDetails;
 import com.example.komunikator.domain.User;
+import com.example.komunikator.repository.ConversationRepo;
 import com.example.komunikator.service.AppService;
+import com.example.komunikator.service.data.Chat;
 import com.example.komunikator.service.data.IdUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -25,6 +29,8 @@ public class AppController {
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+
+
     @MessageMapping("/chat")
     public void send(SimpMessageHeaderAccessor sha, @Payload String recipientAndMessage, Principal principal) {
         String sendFrom = principal.getName();
@@ -42,8 +48,6 @@ public class AppController {
     public String viewHomePage() {
         return "index";
     }
-    @GetMapping("/login")
-    public void login(){}
     @PostMapping("/register")
     public User processRegister(@RequestBody User user) {
         return appService.addUser(user);
@@ -55,23 +59,31 @@ public class AppController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
         else {username = "";}
+        List<IdUsername> usernames = users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
+                .filter(user -> !user.getUsername().equals(username))
+                .map(user -> new IdUsername(user.getId(),user.getUsername()))
+                .collect(Collectors.toList());
         return users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
                 .filter(user -> !user.getUsername().equals(username))
                 .map(user -> new IdUsername(user.getId(),user.getUsername()))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/conversation/{id}")//id to id użytkownika z którym prowadzimy konwersacje
-    public String ChatTo(@PathVariable String id, Model model){
+    @GetMapping("/conversation/{id}")//id to id użytkownika z którym prowadzimy konwersację
+    public ResponseEntity<Chat> ChatTo(@PathVariable String id){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = "";
         if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
-        int conversationId = appService.startConversation(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
-        String message = "";
-        model.addAttribute("conversation", appService.sortMessagesByUsername(appService.getConversationById(conversationId)));
-        model.addAttribute("recipient", appService.getUserById(Integer.parseInt(id)).getUsername());
-        model.addAttribute("newMessage", message);
-        model.addAttribute("username",username);
-        return "/conversation";
+        return ResponseEntity.ok(new Chat(appService.sortMessagesByUsername(appService.getConversationById(Integer.parseInt(id))),
+                appService.findRecipientUsername(Integer.parseInt(id),username),
+                username));
+    }
+
+    @GetMapping("user/{id}")
+    public int getConversationId(@PathVariable String id){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = "";
+        if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
+        return appService.startConversation(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
     }
 }

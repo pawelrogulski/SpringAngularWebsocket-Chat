@@ -19,13 +19,13 @@ export class RegisterComponent implements OnInit {
   register(){
     this.userService.register(this.user).subscribe(data => {
       console.log(data);
-      this.goToUserList();
+      this.goToLoginPage();
     },
     error => console.log(error));
   }
 
-  goToUserList(){
-    this.router.navigate(['/users']);
+  goToLoginPage(){
+    this.router.navigate(['/login']);
   }
   onSubmit(){
     this.register();

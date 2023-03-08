@@ -3,13 +3,14 @@
   <thead>
     <tr>
       <th>Username</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor = "let user of users">
       <td>{{user.username}}</td>
       <td>
-        <button (click) = "startConversation(user.id)" class = "btn btn-info"> Start Conversation</button>
+        <button (click) = "startChat(user.id)" class = "btn btn-info"> Start Conversation</button>
       </td>
     </tr>
   </tbody>

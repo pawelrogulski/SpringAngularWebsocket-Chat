@@ -9,13 +9,15 @@ import { UserListComponent } from './user-list/user-list.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { authInterceptorProviders } from './Services/auth.interceptor';
+import { ChatComponent } from './chat/chat.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     UserListComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,
