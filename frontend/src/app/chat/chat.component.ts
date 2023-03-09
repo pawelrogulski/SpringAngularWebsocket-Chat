@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Chat } from './chat';
+import {MessageService} from '../message.service';
 
 @Component({
   selector: 'app-chat',
@@ -11,7 +12,7 @@ import { Chat } from './chat';
 })
 export class ChatComponent implements OnInit {
 
-  constructor(private httpClient: HttpClient, private route: ActivatedRoute) { }
+  constructor(private httpClient: HttpClient, private route: ActivatedRoute, private messageService: MessageService) { }
   id:number;
   chat:Chat;
 
@@ -26,5 +27,17 @@ export class ChatComponent implements OnInit {
   getChatData(chatId:number): Observable<Chat>{
     return this.httpClient.get<Chat>(`http://localhost:8080/conversation/${chatId}`,{withCredentials:true});
   }
+  sendMessage() {
+    if (this.input) {
+      this.messageService.sendMessage(this.input);
+      this.input = '';
+    }
+  }
 
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.sendMessage();
+    }
+  }
 }
