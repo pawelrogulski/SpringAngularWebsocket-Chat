@@ -15,6 +15,7 @@ export class ChatComponent implements OnInit {
   constructor(private httpClient: HttpClient, private route: ActivatedRoute, private messageService: MessageService) { }
   id:number;
   chat:Chat;
+  input:string;
 
   ngOnInit() {
     this.id = this.route.snapshot.params['id'];
@@ -29,7 +30,7 @@ export class ChatComponent implements OnInit {
   }
   sendMessage() {
     if (this.input) {
-      this.messageService.sendMessage(this.input);
+      this.messageService.sendMessage(this.chat.recipient+' '+this.input);
       this.input = '';
     }
   }
