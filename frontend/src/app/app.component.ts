@@ -7,20 +7,5 @@ import {MessageService} from './message.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'WebSocket Private Chat';
-  input;
-  constructor(private messageService: MessageService) {}
-  sendMessage() {
-    if (this.input) {
-      this.messageService.sendMessage(this.input);
-      this.input = '';
-    }
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      this.sendMessage();
-    }
-  }
+  
 }
