@@ -1,25 +1,20 @@
 <div style="width: 100%; height: 40px; font-size: 25px;">
   <div style="padding-left: 20px; padding-top: 50px;">
-      Chat with:&nbsp
-      <b th:text="${recipient}" th:id="recipient"></b>
+      Chat with: {{recipient}}
   </div>
 </div>
 <div id="scroll" style="height: calc(100% - 220px); margin-top: 40px; margin-right: 40px; margin-left: 40px;overflow-y: scroll;">
-  <table th:id="messageTable">
-      <div th:if="${not #lists.isEmpty(conversation)}">
-          <tr th:each = "message: ${conversation}">
-              <td th:text="${message}"></td>
+  <table>
+          <tr *ngFor = "let message of messages">
+              <td {{message}}></td>
           </tr>
-      </div>
   </table>
 </div>
 <div style="width: 95%;margin-left: auto; margin-right: auto;">
-  <form class="form-inline" th:action="@{/conversation/{id}(id=${recipient})}" method="post">
-      <div style="width: calc(100% - 75px); float: left;">
-          <input type="text" th:value="${newMessage}"  name="newMessage" th:id="newMessage" class="form-control" placeholder="Your message">
-      </div>
-      <div style="width: 75px; float: right;">
-          <button id="send" class="btn btn-primary" type="submit" style="width: 100%;">Send</button>
-      </div>
-  </form>
+  <input class="form-control" type="text" placeholder="message" [(ngModel)]="input">
+  <button class="btn btn-success" (click)="sendMessage()">Send</button>
+  <div class="content">
+    <div *ngFor="let msg of messageService.msg">
+      {{msg}}
+    </div>
 </div>
