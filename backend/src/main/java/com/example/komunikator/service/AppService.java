@@ -1,9 +1,6 @@
 package com.example.komunikator.service;
 
-import com.example.komunikator.domain.Conversation;
-import com.example.komunikator.domain.Message;
-import com.example.komunikator.domain.Role;
-import com.example.komunikator.domain.User;
+import com.example.komunikator.domain.*;
 import com.example.komunikator.repository.ConversationRepo;
 import com.example.komunikator.repository.MessageRepo;
 import com.example.komunikator.repository.RoleRepo;
@@ -14,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -135,5 +133,12 @@ public class AppService {
                 .collect(Collectors.toList())
                 .get(0)
                 .getUsername();
+    }
+
+    public String getPrincipalUsername(Object principal){
+        if (principal instanceof MyUserDetails) {return  ((MyUserDetails)principal).getUsername();}
+        else{
+            return null;
+        }
     }
 }

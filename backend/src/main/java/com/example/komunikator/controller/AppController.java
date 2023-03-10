@@ -9,14 +9,17 @@ import com.example.komunikator.service.data.Chat;
 import com.example.komunikator.service.data.IdUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 
 import java.security.Principal;
 import java.util.*;
@@ -24,16 +27,20 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/app")
 public class AppController {
     private final AppService appService;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-
     @MessageMapping("/chat")
-    public void send(SimpMessageHeaderAccessor sha, @Payload String recipientAndMessage, Principal principal) {
-        String sendFrom = principal.getName();
+    public void send(@Payload String recipientAndMessage, Principal principal) {
+        String sendFrom ="";
+        try{sendFrom = principal.getName();}
+        catch (NullPointerException e){
+            System.out.println("Not authorized user");
+        }
         //wiadomość składa się z 3 elementów, loginu odbiorcy, spacji  i treści
         int space = recipientAndMessage.indexOf(" "); //spacja
         String sendTo = recipientAndMessage.substring(0,space); //login
@@ -55,25 +62,16 @@ public class AppController {
     @GetMapping("/add_friend")
     public List<IdUsername> usersList(){
         List<User> users = appService.getAllUsers();
-        String username;
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
-        else {username = "";}
-        List<IdUsername> usernames = users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
-                .filter(user -> !user.getUsername().equals(username))
-                .map(user -> new IdUsername(user.getId(),user.getUsername()))
-                .collect(Collectors.toList());
+        String username = appService.getPrincipalUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return users.stream()  //uniemożliwienie pisania wiadomości do samego siebie
                 .filter(user -> !user.getUsername().equals(username))
-                .map(user -> new IdUsername(user.getId(),user.getUsername()))
+                .map(user -> new IdUsername(user.getId(),user.getUsername()))//zmapowanie na obiekt nie zawierający pól z wrażliwymi danymi
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/conversation/{id}")//id to id użytkownika z którym prowadzimy konwersację
     public ResponseEntity<Chat> ChatTo(@PathVariable String id){
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = "";
-        if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
+        String username = appService.getPrincipalUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return ResponseEntity.ok(new Chat(appService.sortMessagesByUsername(appService.getConversationById(Integer.parseInt(id))),
                 appService.findRecipientUsername(Integer.parseInt(id),username),
                 username));
@@ -81,9 +79,7 @@ public class AppController {
 
     @GetMapping("user/{id}")
     public int getConversationId(@PathVariable String id){
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = "";
-        if (principal instanceof MyUserDetails) {username = ((MyUserDetails)principal).getUsername();}
+        String username = appService.getPrincipalUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return appService.startConversation(appService.getUserByUsername(username).getId(),Integer.parseInt(id));
     }
 }

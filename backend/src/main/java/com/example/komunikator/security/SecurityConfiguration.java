@@ -56,9 +56,9 @@ public class SecurityConfiguration extends WebMvcConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .mvcMatchers("/","/add_friend","/conversation/**").hasRole("USER")
-                .mvcMatchers("/register","/login").permitAll();
+                .authorizeRequests().mvcMatchers("/api/auth/**").permitAll()
+                .mvcMatchers("/api/app/","/api/app/add_friend","/api/app/conversation/**").hasRole("USER")
+                .mvcMatchers("/api/app/register","/api/app/login").permitAll();
 
         http.authenticationProvider(authenticationProvider());
 

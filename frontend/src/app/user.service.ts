@@ -12,10 +12,10 @@ export class UserService {
   constructor(private httpClient: HttpClient) { }
 
   getUsersList(): Observable<User[]>{
-    return this.httpClient.get<User[]>('http://localhost:8080/add_friend',{withCredentials:true});
+    return this.httpClient.get<User[]>('http://localhost:8080/api/app/add_friend',{withCredentials:true});
   }
 
   register(userRegister: UserRegister): Observable<Object>{
-    return this.httpClient.post('http://localhost:8080/register',userRegister);
+    return this.httpClient.post('http://localhost:8080/api/app/register',userRegister);
   }
 }

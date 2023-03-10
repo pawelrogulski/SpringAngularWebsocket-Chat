@@ -27,7 +27,7 @@ export class UserListComponent implements OnInit {
   }
 
   getConversationId(userId: number): Observable<number>{
-    return this.httpClient.get<number>(`http://localhost:8080/user/${userId}`,{withCredentials:true});
+    return this.httpClient.get<number>(`http://localhost:8080/api/app/user/${userId}`,{withCredentials:true});
   }
 
   startChat(userId:number){

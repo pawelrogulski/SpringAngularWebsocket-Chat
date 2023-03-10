@@ -15,9 +15,9 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    private String jwtSecret = "bezkoder.app.jwtSecret";
+    private String jwtSecret = "jwtSecret";
 
-    private int jwtExpirationMs=10000000;
+    private int jwtExpirationMs=1000000000;
 
     public String generateJwtToken(Authentication authentication) {
 

@@ -1,29 +1,40 @@
 package com.example.komunikator.service;
 
 import com.example.komunikator.domain.MessageUser;
+import com.example.komunikator.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 @RequiredArgsConstructor
+@Service
 public class UserInterceptor implements ChannelInterceptor {
 
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        String username = "";
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            Object raw2 = message.getHeaders().get("simpUser"); //pobiera nagłówek "simpUser" w którym zawarte są informacje potrzebne do autentykacji
-            if(raw2 instanceof UsernamePasswordAuthenticationToken){
-                username = ((UsernamePasswordAuthenticationToken) message.getHeaders().get("simpUser")).getName(); //pobieramy login użytkownika
-            }
-            accessor.setUser(new MessageUser(username)); //dodajemy login do listy użytkowników mogących otrzymywać wiadomości
+    @Autowired
+    private JwtUtils jwtUtils;
 
+    @Override
+    public Message<?> preSend(Message<?> message, MessageChannel channel){
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+            Map headers = (LinkedMultiValueMap)message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
+            ArrayList tokenList = (ArrayList)headers.get("token");
+            String token = tokenList.get(0).toString();
+            if(!jwtUtils.validateJwtToken(token)){
+                return null;
+            }
+            accessor.setUser(new MessageUser(jwtUtils.getUserNameFromJwtToken(token)));
         }
         return message;
     }
