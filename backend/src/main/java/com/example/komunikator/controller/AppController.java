@@ -50,11 +50,6 @@ public class AppController {
         simpMessagingTemplate.convertAndSendToUser(sendTo, "/queue/messages", sendFrom+": "+message); //wysłanie przez WebSocket do odbiorcy
     }
 
-
-    @GetMapping("")
-    public String viewHomePage() {
-        return "index";
-    }
     @PostMapping("/register")
     public User processRegister(@RequestBody User user) {
         return appService.addUser(user);
@@ -77,7 +72,7 @@ public class AppController {
                 username));
     }
 
-    @GetMapping("user/{id}")
+    @GetMapping("user/{id}")//id jednego z użytkowników konwersaji, id zalogowanego użytkownika inicjującego konwersację jest pobierane z principal'a
     public int getConversationId(@PathVariable String id){
         String username = appService.getPrincipalUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return appService.startConversation(appService.getUserByUsername(username).getId(),Integer.parseInt(id));

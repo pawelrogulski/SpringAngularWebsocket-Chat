@@ -57,7 +57,7 @@ public class SecurityConfiguration extends WebMvcConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().mvcMatchers("/api/auth/**").permitAll()
-                .mvcMatchers("/api/app/","/api/app/add_friend","/api/app/conversation/**").hasRole("USER")
+                .mvcMatchers("/api/app/","/api/app/add_friend","/api/app/conversation/**","/api/app/user/**").hasRole("USER")
                 .mvcMatchers("/api/app/register","/api/app/login").permitAll();
 
         http.authenticationProvider(authenticationProvider());
